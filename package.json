@@ -13,6 +13,8 @@
     "seed": "pnpm --filter @fairytails/cms seed",
     "demo": "tsx scripts/demo-server.ts",
     "build:web": "pnpm --filter @fairytails/client export",
+    "build:cms": "pnpm --filter @fairytails/cms build",
+    "start:production": "node scripts/start-production.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "demo:assets": "node scripts/narrate-multilingual.mjs && tsx scripts/generate-demo.ts",
