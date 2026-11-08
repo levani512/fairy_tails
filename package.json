@@ -1,0 +1,37 @@
+{
+  "name": "fairytails",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev:cms": "pnpm --filter @fairytails/cms dev",
+    "dev:web": "pnpm --filter @fairytails/client web",
+    "dev:lan": "node scripts/serve-lan.mjs",
+    "dev:mobile": "pnpm --filter @fairytails/client start",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit && pnpm --filter @fairytails/cms typecheck && pnpm --filter @fairytails/client typecheck",
+    "seed": "pnpm --filter @fairytails/cms seed",
+    "demo": "tsx scripts/demo-server.ts",
+    "build:web": "pnpm --filter @fairytails/client export",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "demo:assets": "node scripts/narrate-multilingual.mjs && tsx scripts/generate-demo.ts",
+    "demo:web": "node scripts/serve-web.mjs"
+  },
+  "devDependencies": {
+    "@echogarden/espeak-ng-emscripten": "^0.3.5",
+    "@types/node": "^24.0.0",
+    "embedded-postgres": "18.6.0-beta.19",
+    "eslint": "^9.39.0",
+    "ffmpeg-static": "^5.3.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "type": "module"
+}

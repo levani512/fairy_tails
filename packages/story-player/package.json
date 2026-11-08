@@ -1,0 +1,6 @@
+{
+  "name": "@fairytails/story-player",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts"
+}

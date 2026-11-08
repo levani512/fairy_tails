@@ -1,0 +1,6 @@
+{
+  "name": "@fairytails/api-client",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts"
+}

@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Fairytails",
+    "slug": "fairytails",
+    "scheme": "fairytails",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-router", "expo-audio", "expo-video"],
+    "web": { "bundler": "metro", "output": "single", "name": "Fairytails" },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fairytails.reader"
+    },
+    "android": { "package": "com.fairytails.reader" }
+  }
+}

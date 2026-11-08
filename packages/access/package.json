@@ -1,0 +1,6 @@
+{
+  "name": "@fairytails/access",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts"
+}

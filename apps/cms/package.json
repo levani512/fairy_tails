@@ -1,0 +1,36 @@
+{
+  "name": "@fairytails/cms",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx src/seed.ts",
+    "payload": "payload",
+    "migrate": "payload migrate",
+    "migrate:create": "payload migrate:create"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1163.0",
+    "@aws-sdk/s3-request-presigner": "^3.1163.0",
+    "@payloadcms/db-postgres": "3.93.0",
+    "@payloadcms/next": "3.93.0",
+    "@payloadcms/storage-s3": "3.93.0",
+    "@payloadcms/ui": "3.93.0",
+    "dotenv": "^16.6.1",
+    "graphql": "^16.11.0",
+    "jose": "^6.2.15",
+    "next": "^16.3.3",
+    "payload": "3.93.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sharp": "^0.34.4",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0"
+  }
+}
