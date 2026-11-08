@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { validatePublished, assetsOf } from '../packages/shared/src/index';
-import { toStory } from '../apps/cms/src/content';
+import { toStory, deliveryManifest } from '../apps/cms/src/content';
 
 const image = {
   id: 'image',
@@ -186,4 +186,17 @@ describe('story bookends', () => {
       }),
     ).toThrow();
   });
+});
+
+it('signs the story cover for delivery from a separate frontend origin', async () => {
+  const story = await toStory(structuredClone(doc), {} as any);
+  const manifest = story.translations.en!.manifest;
+  const originalCoverURL = manifest.cover!.url;
+  const delivered = deliveryManifest(manifest, 'https://api.example.com/api/v1', () => 'test-ticket');
+  const url = new URL(delivered.cover!.url);
+  expect(url.origin).toBe('https://api.example.com');
+  expect(url.searchParams.get('story')).toBe(manifest.id);
+  expect(url.searchParams.get('hash')).toBe(manifest.cover!.hash);
+  expect(url.searchParams.get('ticket')).toBe('test-ticket');
+  expect(manifest.cover!.url).toBe(originalCoverURL);
 });

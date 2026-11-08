@@ -236,5 +236,6 @@ export function deliveryManifest(
       .forEach((a) => asset(a!));
   }
   if (copy.music) asset(copy.music.asset);
+  if (copy.cover) asset(copy.cover);
   return copy;
 }
