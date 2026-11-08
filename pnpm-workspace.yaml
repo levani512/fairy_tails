@@ -7,3 +7,5 @@ allowBuilds:
   sharp: true
   ffmpeg-static: true
   '@embedded-postgres/windows-x64': true
+  # Render uses managed PostgreSQL, not the local development database binary.
+  '@embedded-postgres/linux-x64': false
