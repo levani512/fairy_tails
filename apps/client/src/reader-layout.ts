@@ -38,3 +38,20 @@ export function readerLayout(width: number, height: number, aspect: number) {
     imageHeight: imageWidth / ratio,
   };
 }
+
+// Story controls sit outside the side-by-side illustration and narration frames.
+export function storyPageLayout(width: number, height: number, aspect: number) {
+  const layout = readerLayout(width, height, aspect);
+  if (layout.stacked) return layout;
+  const toolbar = layout.compact ? 60 : 76;
+  const ratio = Number.isFinite(aspect) && aspect > 0 ? aspect : 16 / 9;
+  const imageHeight = Math.max(0, height - toolbar - 6);
+  // Fill the scene vertically while retaining a readable narration column.
+  // Media uses contain if the available width limits its natural aspect ratio.
+  const narrationWidth = Math.max(180, width * 0.25);
+  const imageWidth = Math.max(
+    0,
+    Math.min(width - narrationWidth - 30, imageHeight * ratio),
+  );
+  return { ...layout, imageHeight, imageWidth };
+}

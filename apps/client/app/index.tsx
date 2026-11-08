@@ -1,16 +1,9 @@
 import { Text, TextInput, Paper, Icon } from '../src/Storybook';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import {
-  View,
-  FlatList,
-  Modal,
-  ScrollView,
-  Pressable,
-  useWindowDimensions,
-} from 'react-native';
+import { View, FlatList, Modal, ScrollView, Pressable } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ReaderSafeArea, useReaderDimensions } from '../src/ReaderSafeArea';
 import type {
   Preview,
   Tag,
@@ -39,14 +32,23 @@ import {
   toggleReaderFavorite,
 } from '../src/family-store';
 import type { Child } from '../../../packages/shared/src/family';
+import { enterStoryFullscreen } from '../src/fullscreen';
 export default function Home() {
+  return (
+    <ReaderSafeArea>
+      <LobbyContent />
+    </ReaderSafeArea>
+  );
+}
+
+function LobbyContent() {
   const router = useRouter(),
     { completed, parents, signin } = useLocalSearchParams<{
       completed?: string;
       parents?: string;
       signin?: string;
     }>(),
-    { width } = useWindowDimensions();
+    { width } = useReaderDimensions();
   const columns = width >= 1000 ? 4 : width >= 700 ? 3 : 2;
   const [contentWidth, setContentWidth] = useState(width - 32);
   const [activeChild, setActiveChild] = useState<Child>();
@@ -273,6 +275,7 @@ export default function Home() {
     }
   };
   const play = (story: Preview, resume = false, quiz = false) => {
+    void enterStoryFullscreen();
     setSelected(null);
     router.push({
       pathname: '/player/[id]',
@@ -285,7 +288,7 @@ export default function Home() {
     });
   };
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.paper }}>
+    <View style={{ flex: 1, backgroundColor: c.paper }}>
       <Paper />
       <FlatList
         key={columns}
@@ -690,6 +693,6 @@ export default function Home() {
           }
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }

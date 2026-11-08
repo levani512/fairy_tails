@@ -1,0 +1,9 @@
+{
+  "name": "FairyTails",
+  "short_name": "FairyTails",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFF9EF",
+  "theme_color": "#FFF9EF"
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ReaderSafeArea } from '../../src/ReaderSafeArea';
 import {
   type Manifest,
   type Language,
@@ -19,7 +19,14 @@ import { StoryPlayer } from '../../src/Player';
 import { StoryQuiz } from '../../src/StoryQuiz';
 import { LoadingScreen, Button, styles } from '../../src/components';
 import { sendToUnity } from '../../../../integrations/unity/bridge';
+import { leaveStoryFullscreen } from '../../src/fullscreen';
 export default function PlayerRoute() {
+  useEffect(
+    () => () => {
+      void leaveStoryFullscreen();
+    },
+    [],
+  );
   const {
       id,
       language = 'en',
@@ -126,7 +133,7 @@ export default function PlayerRoute() {
     );
   }
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+    <ReaderSafeArea>
       <View style={{ flex: 1 }}>
         {error ? (
           <View style={{ gap: 20, padding: 30 }}>
@@ -172,6 +179,6 @@ export default function PlayerRoute() {
           <LoadingScreen />
         )}
       </View>
-    </SafeAreaView>
+    </ReaderSafeArea>
   );
 }

@@ -42,6 +42,7 @@ const types = {
   '.webp': 'image/webp',
   '.svg': 'image/svg+xml',
   '.json': 'application/json',
+  '.webmanifest': 'application/manifest+json',
   '.ttf': 'font/ttf',
   '.woff2': 'font/woff2',
   '.wav': 'audio/wav',

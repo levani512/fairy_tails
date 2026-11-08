@@ -1,3 +1,4 @@
+import { useReaderDimensions } from './ReaderSafeArea';
 import { colors as c } from './theme';
 import { Text, Paper, Icon } from './Storybook';
 import React, { useEffect, useRef, useState } from 'react';
@@ -7,7 +8,6 @@ import {
   ScrollView,
   StyleSheet,
   View,
-  useWindowDimensions,
 } from 'react-native';
 import { useAudioPlayer } from 'expo-audio';
 import { Image } from 'expo-image';
@@ -47,7 +47,7 @@ export function StoryQuiz({
   storyId: string;
   language: Language;
 }) {
-  const { width, height } = useWindowDimensions();
+  const { width, height } = useReaderDimensions();
   const layout = readerLayout(width, height, aspect);
   const [index, setIndex] = useState(0);
   const [shuffledQuestions, setShuffledQuestions] = useState(() =>

@@ -46,6 +46,7 @@ const paths = {
   next: 'M5 12h14M13 5l7 7-7 7',
   back: 'M19 12H5M11 5l-7 7 7 7',
   close: 'M6 6l12 12M18 6 6 18',
+  fullscreen: 'M9 3H3v6M15 3h6v6M21 15v6h-6M9 21H3v-6',
   download: 'M12 2v14M7 12l5 5 5-5M2 11v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V11',
   check: 'M5 12l4 4L20 5',
   replay: 'M20 8a9 9 0 1 0 1 8M20 2v6h-6M10 9l5 3-5 3Z',

@@ -1,3 +1,5 @@
+import { storyPageLayout } from './reader-layout';
+import { useReaderDimensions } from './ReaderSafeArea';
 import { ILLUSTRATION_ASPECT } from '../../../packages/shared/src/illustration';
 import { Text, Paper, Icon } from './Storybook';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -9,7 +11,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  useWindowDimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { readerLayout, needsPhoneRotation } from './reader-layout';
@@ -29,6 +30,7 @@ import { styles as s } from './components';
 import { StoryQuiz } from './StoryQuiz';
 import { Music } from './Music';
 import { colors as c } from './theme';
+import { enterStoryFullscreen } from './fullscreen';
 export function NarrationText({
   page,
   position,
@@ -38,7 +40,7 @@ export function NarrationText({
   position: number;
   activeWordRef?: React.Ref<React.ComponentRef<typeof NativeText>>;
 }) {
-  const { height } = useWindowDimensions();
+  const { height } = useReaderDimensions();
   const segments = useMemo(() => textSegments(page.text, page.timings), [page]),
     index = activeWord(page.timings, position);
   return (
@@ -76,12 +78,14 @@ function NarrationViewport({
   enabled,
   width,
   compact = false,
+  flush = false,
 }: {
   page: Page;
   position: number;
   enabled: boolean;
   width: number | '100%';
   compact?: boolean;
+  flush?: boolean;
 }) {
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const content = useRef<React.ComponentRef<typeof View>>(null);
@@ -125,8 +129,8 @@ function NarrationViewport({
         overflow: 'hidden',
         width,
         alignSelf: 'center',
-        marginTop: 12,
-        marginBottom: 4,
+        marginTop: flush ? 0 : 12,
+        marginBottom: flush ? 0 : 4,
         borderRadius: compact ? 18 : 24,
         borderWidth: 1,
         borderColor: c.line,
@@ -179,7 +183,6 @@ export function AnimatedPage({
   autoNarration,
   soundEffects,
   replayControl,
-  onIllustrationTop,
   onIllustrationAspect,
 }: {
   page: Page;
@@ -190,16 +193,15 @@ export function AnimatedPage({
   autoNarration: boolean;
   soundEffects: boolean;
   replayControl: React.ReactNode;
-  onIllustrationTop: (top: number) => void;
   onIllustrationAspect?: (aspect: number) => void;
 }) {
-  const { width, height } = useWindowDimensions();
+  const { width, height } = useReaderDimensions();
   const [bounds, setBounds] = useState({ width, height });
   const aspect = ILLUSTRATION_ASPECT;
   useEffect(() => {
     onIllustrationAspect?.(aspect);
   }, [aspect, onIllustrationAspect]);
-  const { stacked, wide, compact, imageWidth, imageHeight } = readerLayout(
+  const { stacked, wide, compact, imageWidth, imageHeight } = storyPageLayout(
     bounds.width,
     bounds.height,
     aspect,
@@ -396,6 +398,9 @@ export function AnimatedPage({
                 style={reader.video}
                 contentFit="contain"
                 nativeControls={false}
+                playsInline
+                fullscreenOptions={{ enable: false }}
+                allowsPictureInPicture={false}
               />
             ) : (
               <Image
@@ -469,17 +474,18 @@ export function AnimatedPage({
             : [],
         flex: 1,
         flexDirection: 'column',
-        justifyContent: wide ? 'center' : 'flex-start',
-        paddingTop: wide ? 0 : 76,
+        justifyContent: 'flex-start',
+        paddingTop: compact ? 60 : 76,
+        paddingBottom: 6,
       }}
     >
       <View
-        onLayout={(event) => onIllustrationTop(event.nativeEvent.layout.y)}
         style={{
           flexDirection: 'row',
           alignItems: 'stretch',
-          paddingHorizontal: 8,
-          gap: 8,
+          paddingLeft: 0,
+          paddingRight: 24,
+          gap: 6,
         }}
       >
         <View
@@ -498,6 +504,9 @@ export function AnimatedPage({
               style={reader.video}
               contentFit="contain"
               nativeControls={false}
+              playsInline
+              fullscreenOptions={{ enable: false }}
+              allowsPictureInPicture={false}
             />
           ) : (
             <Image
@@ -506,7 +515,6 @@ export function AnimatedPage({
               contentFit="contain"
             />
           )}
-          {replayControl}
         </View>
         {wide ? (
           <View
@@ -515,9 +523,9 @@ export function AnimatedPage({
               {
                 flex: 1,
                 height: imageHeight,
-                paddingHorizontal: compact ? 12 : 24,
-                paddingBottom: 12,
-                paddingTop: 48,
+                paddingHorizontal: 0,
+                paddingBottom: 0,
+                paddingTop: 0,
               },
             ]}
           >
@@ -537,6 +545,7 @@ export function AnimatedPage({
                 enabled={autoNarration}
                 width="100%"
                 compact={compact}
+                flush
               />
             )}
             {error ? (
@@ -558,9 +567,7 @@ export function AnimatedPage({
               >
                 {navigation}
               </View>
-            ) : (
-              navigation
-            )}
+            ) : null}
           </View>
         ) : (
           <View
@@ -575,6 +582,19 @@ export function AnimatedPage({
           </View>
         )}
       </View>
+      {replayControl}
+      {page.kind !== 'cover' && navigation && (
+        <View
+          style={{
+            position: 'absolute',
+            top: compact ? 6 : 7,
+            width: Math.min(280, bounds.width - 300),
+            alignSelf: 'center',
+          }}
+        >
+          {navigation}
+        </View>
+      )}
       {!wide && (
         <ScrollView
           style={{ flex: 1 }}
@@ -614,18 +634,18 @@ export function StoryPlayer({
   onExit: () => void;
   onComplete: () => void;
 }) {
-  const { width, height } = useWindowDimensions();
+  const { width, height } = useReaderDimensions();
   const { stacked, wide, compact } = readerLayout(width, height, 16 / 9);
   const rotatePhone = needsPhoneRotation(width, height);
   const [autoNarration, setAutoNarration] = useState(true);
   const [soundEffects, setSoundEffects] = useState(true);
   const [backgroundMusic, setBackgroundMusic] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [fullscreenHint, setFullscreenHint] = useState('');
   const [replay, setReplay] = useState(0);
   const [quizOpen, setQuizOpen] = useState(false);
   const [illustrationAspect, setIllustrationAspect] =
     useState(ILLUSTRATION_ASPECT);
-  const [illustrationTop, setIllustrationTop] = useState(16);
   const [paused, setPaused] = useState(false),
     [narrating, setNarrating] = useState(false);
   const [leaving, setLeaving] = useState(false),
@@ -763,18 +783,22 @@ export function StoryPlayer({
                 setPaused(false);
                 setReplay((n) => n + 1);
               }}
-              style={[reader.replayAll, compact && { width: 48, height: 48 }]}
+              style={[
+                reader.replayAll,
+                compact && { width: 48, height: 48 },
+                wide && { top: 6, left: 22 },
+              ]}
             >
               <Icon name="replay" size={compact ? 32 : 42} />
             </Pressable>
           }
-          onIllustrationTop={setIllustrationTop}
           onIllustrationAspect={setIllustrationAspect}
           navigation={
             page.kind === 'end' ? null : (
               <View
                 style={[
                   reader.navigation,
+                  wide && { paddingTop: 0 },
                   page.kind === 'cover' && { paddingTop: 0 },
                 ]}
               >
@@ -870,7 +894,7 @@ export function StoryPlayer({
           onPress={() => setSettingsOpen((x) => !x)}
           style={[
             reader.settingsButton,
-            { top: stacked ? 16 : illustrationTop },
+            { top: stacked ? 16 : compact ? 6 : 14, right: stacked ? 86 : 84 },
           ]}
         >
           <Icon name="settings" size={29} />
@@ -882,7 +906,7 @@ export function StoryPlayer({
           onPress={() => leave(false)}
           style={({ pressed }) => [
             reader.close,
-            { top: stacked ? 16 : illustrationTop },
+            { top: stacked ? 16 : compact ? 7 : 15, right: stacked ? 24 : 30 },
             pressed && reader.pressed,
           ]}
         >
@@ -892,55 +916,83 @@ export function StoryPlayer({
           <View
             style={[
               reader.settingsPopup,
-              { top: stacked ? 74 : illustrationTop + 58 },
+              { top: stacked ? 74 : 64, right: stacked ? 16 : 30 },
             ]}
           >
-            {[
-              {
-                label: 'Auto Narration',
-                enabled: autoNarration,
-                toggle: () => setAutoNarration((x) => !x),
-                icon: 'check' as const,
-              },
-              {
-                label: 'Sound Effects',
-                enabled: soundEffects,
-                toggle: () => setSoundEffects((x) => !x),
-                icon: 'sound' as const,
-              },
-              {
-                label: 'Background Music',
-                enabled: backgroundMusic,
-                toggle: () => setBackgroundMusic((x) => !x),
-                icon: 'music' as const,
-              },
-            ].map((setting) => (
+            <ScrollView
+              style={{
+                maxHeight: Math.max(120, height - (stacked ? 74 : 64) - 52),
+              }}
+              contentContainerStyle={{ gap: 18 }}
+            >
               <Pressable
-                key={setting.label}
-                accessibilityRole="switch"
-                accessibilityLabel={setting.label}
-                aria-checked={setting.enabled}
-                accessibilityState={{ checked: setting.enabled }}
-                onPress={setting.toggle}
+                accessibilityRole="button"
+                accessibilityLabel="Full screen story"
                 style={reader.settingRow}
+                onPress={() => {
+                  void enterStoryFullscreen().then((entered) => {
+                    setFullscreenHint(
+                      entered
+                        ? ''
+                        : 'On iPhone, use Safari’s Share menu → Add to Home Screen → Open as Web App, then launch FairyTails from its icon.',
+                    );
+                    if (entered) setSettingsOpen(false);
+                  });
+                }}
               >
-                <Text style={reader.settingLabel}>{setting.label}</Text>
-                <View
-                  style={{
-                    borderRadius: 18,
-                    padding: 8,
-                    backgroundColor: setting.enabled ? c.light : '#EFE9E0',
-                    opacity: setting.enabled ? 1 : 0.45,
-                  }}
-                >
-                  <Icon
-                    name={setting.icon}
-                    size={26}
-                    color={setting.enabled ? c.green : c.muted}
-                  />
-                </View>
+                <Text style={reader.settingLabel}>Full screen</Text>
+                <Icon name="fullscreen" size={26} />
               </Pressable>
-            ))}
+              {!!fullscreenHint && (
+                <Text style={s.small}>{fullscreenHint}</Text>
+              )}
+              {[
+                {
+                  label: 'Auto Narration',
+                  enabled: autoNarration,
+                  toggle: () => setAutoNarration((x) => !x),
+                  icon: 'check' as const,
+                },
+                {
+                  label: 'Sound Effects',
+                  enabled: soundEffects,
+                  toggle: () => setSoundEffects((x) => !x),
+                  icon: 'sound' as const,
+                },
+                {
+                  label: 'Background Music',
+                  enabled: backgroundMusic,
+                  toggle: () => setBackgroundMusic((x) => !x),
+                  icon: 'music' as const,
+                },
+              ].map((setting) => (
+                <Pressable
+                  key={setting.label}
+                  accessibilityRole="switch"
+                  accessibilityLabel={setting.label}
+                  aria-checked={setting.enabled}
+                  accessibilityState={{ checked: setting.enabled }}
+                  onPress={setting.toggle}
+                  style={reader.settingRow}
+                >
+                  <Text style={reader.settingLabel}>{setting.label}</Text>
+                  <View
+                    style={{
+                      borderRadius: 18,
+                      padding: 8,
+                      backgroundColor: setting.enabled ? c.light : '#EFE9E0',
+                      opacity: setting.enabled ? 1 : 0.45,
+                    }}
+                  >
+                    <Icon
+                      name={setting.icon}
+                      size={26}
+                      color={setting.enabled ? c.green : c.muted}
+                    />
+                  </View>
+                </Pressable>
+              ))}
+            </ScrollView>
           </View>
         )}
       </View>

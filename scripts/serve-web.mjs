@@ -29,6 +29,7 @@ createServer(async (req, res) => {
         '.png': 'image/png',
         '.webp': 'image/webp',
         '.json': 'application/json',
+        '.webmanifest': 'application/manifest+json',
       }[extname(file)] ?? 'text/html';
     res.setHeader('Content-Type', mime);
     res.end(body);
